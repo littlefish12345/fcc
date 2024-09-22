@@ -20,3 +20,12 @@ char *read_file(FILE *f) {
     fread(buffer, file_size, 1, f);
     return buffer;
 }
+
+bool file_exists(const char *path) {
+    FILE *f = fopen(path, "r");
+    bool exists = f != NULL;
+    if (exists) {
+        fclose(f);
+    }
+    return exists;
+}

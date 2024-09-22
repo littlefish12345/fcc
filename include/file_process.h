@@ -6,5 +6,6 @@
 
 int get_file_size(FILE *f);
 char *read_file(FILE *f);
+bool file_exists(const char *path);
 
 #endif

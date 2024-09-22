@@ -27,6 +27,17 @@ bool string_part_equal(string *str1, string *str2, int str1_start, int str2_star
     return true;
 }
 
+
+void add_back_string(string *str, const char *be_added, int add_len) {
+    if (str->size < str->len+add_len+1) {
+        str->data = (char *)realloc(str->data, str->len+add_len+1);
+        str->size = str->len+add_len+1;
+    }
+    memcpy(&str->data[str->len], be_added, add_len);
+    str->len += add_len;
+    str->data[str->len] = '\0';
+}
+
 void free_string(string *str) {
     free(str->data);
     free(str);
