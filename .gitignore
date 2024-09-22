@@ -1,0 +1,4 @@
+test.txt
+compile_commands.json
+out/
+.cache/
