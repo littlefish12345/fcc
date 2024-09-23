@@ -38,6 +38,10 @@ void add_back_string(string *str, const char *be_added, int add_len) {
     str->data[str->len] = '\0';
 }
 
+string *copy_string(string *original_str) {
+    return convert_char(original_str->data, original_str->len);
+}
+
 void free_string(string *str) {
     free(str->data);
     free(str);

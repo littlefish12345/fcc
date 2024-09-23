@@ -1,4 +1,5 @@
-test.txt
+test.c
+test.h
 compile_commands.json
 out/
 .cache/

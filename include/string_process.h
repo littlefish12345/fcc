@@ -20,6 +20,7 @@ typedef struct _string_chain_part string_chain_part;
 string *convert_char(const char *original_str, int str_len);
 bool string_part_equal(string *str1, string *str2, int str1_start, int str2_start, int length);
 void add_back_string(string *str, const char *be_added, int add_len);
+string *copy_string(string *original_str);
 void free_string(string *str);
 
 string_chain_part *new_string_chain_part(string *str);
