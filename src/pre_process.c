@@ -40,10 +40,16 @@ string_chain_part *process_include(string_chain_part *line_head) {
         if (string_part_equal(now->str, include_command_str, 0, 0, 8)) {
             char include_filename_buf[BUFFER_SIZE]; //extract filename
             char sp = '<';
-            sscanf(now->str->data, "#include%*[ \t<]%[^>]", include_filename_buf);
-            if (include_filename_buf[0] == '"') {
+            sscanf(now->str->data, "#include%*[ \t]<%[^>]", include_filename_buf);
+            if (include_filename_buf[0] == '\0') {
+                sscanf(now->str->data, "#include<%[^>]", include_filename_buf);
+            }
+            if (include_filename_buf[0] == '\0') {
                 sp = '"';
-                sscanf(now->str->data, "#include%*[ \t\"]%[^\"]", include_filename_buf);
+                sscanf(now->str->data, "#include%*[ \t]\"%[^\"]", include_filename_buf);
+                if (include_filename_buf[0] == '\0') {
+                    sscanf(now->str->data, "#include\"%[^\"]", include_filename_buf);
+                }
             }
             if (include_filename_buf[0] == '\0') {
                 printf("cc: fatal error: include error\n");
