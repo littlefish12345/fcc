@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
                 return 0;
             } else if (argv[args_count][1] == 'I') {
                 tmp = new_string_chain_part(convert_char(&argv[args_count][2], strlen(argv[args_count])-2));
-                add_back_string_chain(include_path_tail, tmp);
+                insert_back_string_chain(include_path_tail, tmp);
                 include_path_tail = tmp;
             }
         } else {
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
                 source_file_chain_tail = new_string_chain_part(convert_char(argv[args_count], strlen(argv[args_count])));
             } else {
                 tmp = new_string_chain_part(convert_char(argv[args_count], strlen(argv[args_count])));
-                add_back_string_chain(source_file_chain_tail, tmp);
+                insert_back_string_chain(source_file_chain_tail, tmp);
                 source_file_chain_tail = tmp;
             }
         }

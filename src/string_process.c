@@ -55,7 +55,11 @@ string_chain_part *new_string_chain_part(string *str) {
     return part;
 }
 
-void add_back_string_chain(string_chain_part *prev, string_chain_part *new_part) {
+void insert_back_string_chain(string_chain_part *prev, string_chain_part *new_part) {
+    if (prev->next != NULL) {
+        prev->next->prev = new_part;
+        new_part->next = prev->next;
+    }
     prev->next = new_part;
     new_part->prev = prev;
 }

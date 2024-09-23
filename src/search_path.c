@@ -12,14 +12,14 @@ void process_include_search_path() {
     string_chain_part *tmp;
     for (int i = 1; i < builtin_include_path_num; ++i) {
         tmp = new_string_chain_part(convert_char(builtin_include_path[i], strlen(builtin_include_path[i])));
-        add_back_string_chain(include_path_tail, tmp);
+        insert_back_string_chain(include_path_tail, tmp);
         include_path_tail = tmp;
     }
 
     char *include_path_char = getenv("C_INCLUDE_PATH");
     if (include_path_char != NULL) {
         string_chain_part *env = split_by_char(convert_char(include_path_char, strlen(include_path_char)), ':');
-        add_back_string_chain(include_path_tail, env);
+        insert_back_string_chain(include_path_tail, env);
         while (include_path_tail->next != NULL) {
             include_path_tail = include_path_tail->next;
         }

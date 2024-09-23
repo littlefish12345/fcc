@@ -24,7 +24,7 @@ string *copy_string(string *original_str);
 void free_string(string *str);
 
 string_chain_part *new_string_chain_part(string *str);
-void add_back_string_chain(string_chain_part *prev, string_chain_part *new_part);
+void insert_back_string_chain(string_chain_part *prev, string_chain_part *new_part);
 string_chain_part *split_by_char(string *str, char sp);
 void free_string_chain_part(string_chain_part *part);
 

@@ -11,6 +11,14 @@ extern string_chain_part *include_path_tail;
 string *find_header_in_search_path(string *name, char sp) {
     string_chain_part *now = include_path_tail;
     string *path;
+    if (sp == '"') {
+        path = convert_char("./", 2);
+        add_back_string(path, name->data, name->len);
+        if (file_exists(path->data)) {
+            return path;
+        }
+        free_string(path);
+    }
     while (now != NULL) {
         path = copy_string(now->str);
         add_back_string(path, "/", 1);
@@ -20,14 +28,6 @@ string *find_header_in_search_path(string *name, char sp) {
         }
         free_string(path);
         now = now->prev;
-    }
-    if (sp == '"') {
-        path = convert_char("./", 2);
-        add_back_string(path, name->data, name->len);
-        if (file_exists(path->data)) {
-            return path;
-        }
-        free_string(path);
     }
     return NULL;
 }
@@ -40,7 +40,7 @@ string_chain_part *process_include(string_chain_part *line_head) {
             char sp = '\0';
             int start = 8;
             int end;
-            for (; start < now->str->len; ++start) {
+            for (; start < now->str->len; ++start) { //extract filename
                 if (now->str->data[start] == '<') {
                     sp = '<';
                     break;
@@ -71,18 +71,45 @@ string_chain_part *process_include(string_chain_part *line_head) {
                     ++end;
                 }
             }
-            string *include_filename = convert_char(&now->str->data[start+1], end-start-1);
+
+            string *include_filename = convert_char(&now->str->data[start+1], end-start-1); //search for the file
             string *include_filepath = find_header_in_search_path(include_filename, sp);
             if (include_filepath == NULL) {
                 printf("cc: fatal error: %s: No such file or directory", include_filename->data);
                 exit(-1);
             }
             free_string(include_filename);
-            printf("%s\n", include_filepath->data);
-        }
-        now = now->next;
-    }
 
+            FILE *f = fopen(include_filepath->data, "r"); //read header file
+            char *header_data = read_file(f);
+            string *header_string = convert_char(header_data, get_file_size(f));
+            fclose(f);
+            free(header_data);
+            string_chain_part *include_lines_head = split_by_char(header_string, '\n');
+            free_string(header_string);
+            string_chain_part *include_lines_tail = include_lines_head;
+            while (include_lines_tail->next != NULL) {
+                include_lines_tail = include_lines_tail->next;
+            }
+            
+            if (now->prev == NULL) { //insert line chain
+                line_head = include_lines_head;
+                include_lines_tail->next = now->next;
+                now->next->prev = include_lines_tail;
+                free_string_chain_part(now);
+            } else {
+                now = now->prev;
+                free_string_chain_part(now->next);
+                now->next->prev = include_lines_tail;
+                include_lines_tail->next = now->next;
+                now->next = include_lines_head;
+                include_lines_head->prev = now;
+            }
+            now = include_lines_head;
+        } else {
+            now = now->next;
+        }
+    }
     return line_head;
 }
 
@@ -101,8 +128,13 @@ string_chain_part *pre_process(char *filename) {
     fclose(f);
     free(src);
     string_chain_part *line_head = split_by_char(str_src, '\n');
-    free(str_src);
+    free_string(str_src);
     line_head = process_include(line_head);
+    while (line_head != NULL) {
+        printf("%s\n", line_head->str->data);
+        line_head = line_head->next;
+    }
+
     recursive_process_ifdef(line_head);
     return line_head;
 }
