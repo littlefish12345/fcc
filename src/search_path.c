@@ -3,7 +3,9 @@
 
 #include <search_path.h>
 #include <string_process.h>
-#include <builtin_constants.h>
+
+const char *builtin_include_path[] = {"/usr/include", "/usr/local/include"};
+const int builtin_include_path_num = 2; //>1
 
 extern string_chain_part *include_path_tail;
 

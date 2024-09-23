@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <defines.h>
 #include <pre_process.h>
 #include <file_process.h>
 #include <string_process.h>
@@ -37,45 +38,22 @@ string_chain_part *process_include(string_chain_part *line_head) {
     string *include_command_str = convert_char("#include", 8);
     while (now != NULL) {
         if (string_part_equal(now->str, include_command_str, 0, 0, 8)) {
-            char sp = '\0';
-            int start = 8;
-            int end;
-            for (; start < now->str->len; ++start) { //extract filename
-                if (now->str->data[start] == '<') {
-                    sp = '<';
-                    break;
-                } else if (now->str->data[start] == '"') {
-                    sp = '"';
-                    break;
-                }
+            char include_filename_buf[BUFFER_SIZE]; //extract filename
+            char sp = '<';
+            sscanf(now->str->data, "#include%*[ \t<]%[^>]", include_filename_buf);
+            if (include_filename_buf[0] == '"') {
+                sp = '"';
+                sscanf(now->str->data, "#include%*[ \t\"]%[^\"]", include_filename_buf);
             }
-            if (sp == '\0') {
+            if (include_filename_buf[0] == '\0') {
                 printf("cc: fatal error: include error\n");
                 exit(-1);
             }
-            end = start+1;
-            if (sp == '<') {
-                while (now->str->data[end] != '>') {
-                    if (now->str->data[end] == '\0') {
-                        printf("cc: fatal error: include error\n");
-                        exit(-1);
-                    }
-                    ++end;
-                }
-            } else {
-                while (now->str->data[end] != '"') {
-                    if (now->str->data[end] == '\0') {
-                        printf("cc: fatal error: include error\n");
-                        exit(-1);
-                    }
-                    ++end;
-                }
-            }
 
-            string *include_filename = convert_char(&now->str->data[start+1], end-start-1); //search for the file
+            string *include_filename = convert_char(include_filename_buf, strlen(include_filename_buf)); //search for the file
             string *include_filepath = find_header_in_search_path(include_filename, sp);
             if (include_filepath == NULL) {
-                printf("cc: fatal error: %s: No such file or directory", include_filename->data);
+                printf("cc: fatal error: %s: No such file or directory\n", include_filename->data);
                 exit(-1);
             }
             free_string(include_filename);
@@ -113,8 +91,19 @@ string_chain_part *process_include(string_chain_part *line_head) {
     return line_head;
 }
 
-void recursive_process_ifdef(string_chain_part *line_head) {
-    
+string_chain_part *process_def_ifdef(string_chain_part *line_head) {
+    string_chain_part *now = line_head;
+    string *define_command_str = convert_char("#define", 7);
+    string *if_command_str = convert_char("#if", 3);
+    string *ifdef_command_str = convert_char("#ifdef", 6);
+    string *ifndef_command_str = convert_char("#ifndef", 7);
+    string *else_command_str = convert_char("#else", 5);
+    string *endif_command_str = convert_char("#endif", 6);
+    while (now != NULL) {
+        if (string_part_equal(define_command_str, now->str, 0, 0, 7)) {
+            
+        }
+    }
 }
 
 string_chain_part *pre_process(char *filename) {
@@ -134,8 +123,7 @@ string_chain_part *pre_process(char *filename) {
         printf("%s\n", line_head->str->data);
         line_head = line_head->next;
     }
-
-    recursive_process_ifdef(line_head);
+    //line_head = process_def_ifdef(line_head);
     return line_head;
 }
 
